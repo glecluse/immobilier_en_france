@@ -8,7 +8,7 @@ import json
 
 
 st.set_page_config(layout="wide", page_title='Etude sur les transactions immobilières en France')
-st.set_option('deprecation.showPyplotGlobalUse', False)
+#st.set_option('deprecation.showPyplotGlobalUse', False)
 utl.inject_custom_css()
 utl.navbar_component()
     
