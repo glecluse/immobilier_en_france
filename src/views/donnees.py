@@ -22,10 +22,15 @@ def load_view():
         with open('traitement_fichier_transaction.ipynb') as f:
             file_contents = f.read()
             st.download_button('Télécharger le fichier .ipynb', file_contents, file_name='traitement_fichier_transaction.ipynb')
-        with open("traitement_fichier_transaction.md", "r") as markdown_file:
-            markdown_content = markdown_file.read()
-        st.markdown(markdown_content)
-
+        st.write("""
+        - **Chargement des fichiers** 
+        - **Conversion de la colonne date en datetime**
+        - **Création de colonnes supplémentaires**
+        - **Tri des données**
+        - **Sélection des colonnes utiles**
+        - **Agrégation des données par date**
+        - **Exportation vers CSV**
+        """)
     with tab1:
         st.header("Tableau d'évolution des taux d'intérêts")
         st.write("---")
