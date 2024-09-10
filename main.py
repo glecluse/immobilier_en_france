@@ -43,10 +43,9 @@ def navigation():
         logout.load_view()
     elif route == "/login":
         login.load_view()
-     
 
-    #else:
-        #redirect("/home")
-        #home.load_view()
+    else:
+        redirect("/home")
+        home.load_view()
 
 navigation()
