@@ -3,8 +3,14 @@ from src.router import redirect
 
 def load_view():
 
-    
     st.title("Présentation de l'Application d'Analyse du Marché Immobilier en France")
+
+    # Créer un tableau à trois colonnes
+    col1, col2, col3 = st.columns([3, 5, 1])  # La colonne du milieu est plus large pour l'image
+
+    # Placer l'image au centre dans la colonne du milieu
+    with col2:
+        st.image("house.jpg", width=500)  # Ajustez 'width' pour réduire la taille de l'image
 
     st.write("""
     ### Objectif de l'Application
@@ -44,3 +50,4 @@ def load_view():
 
     Bonnes analyses !
     """)
+

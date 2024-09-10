@@ -4,6 +4,8 @@ import streamlit as st
 import plotly.express as px
 import plotly.graph_objs as go
 
+
+
 def load_view():
 
     plt.style.use('dark_background')
