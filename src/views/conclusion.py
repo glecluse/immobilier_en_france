@@ -34,5 +34,5 @@ def load_view():
 
     # Image à droite
     with col2:
-        st.image("maison.png", caption="Marché immobilier en France", use_column_width=True)
+        st.image("maison.png",  use_column_width=True)
 
