@@ -20,6 +20,9 @@ class UnitTest (unittest.TestCase):
         self.assertEqual(len(res.fetchone()), 1, "commit function doesn't works !!!" )
 
 
+
+
+
 if __name__ == '__main__':
     unittest.main()
 
