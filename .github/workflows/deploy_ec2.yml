@@ -35,6 +35,7 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.EC2_PRIVATE_KEY }}" > ~/.ssh/ec2_private_key.pem
           chmod 400 ~/.ssh/ec2_private_key.pem
+          cat ~/.ssh/ec2_private_key.pem  # Ajoutez cette ligne pour vérifier si la clé est correctement écrite
 
       - name: Vérification et création du dossier sur EC2
         uses: appleboy/ssh-action@v0.1.2
