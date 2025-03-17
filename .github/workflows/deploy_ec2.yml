@@ -60,11 +60,13 @@ jobs:
 
       - name: Vérification de l'environnement virtuel
         run: |
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/ec2_private_key.pem ubuntu@${{ secrets.EC2_HOST }} "cd ~/immobilier_en_france/ && \
-          if [ ! -d 'venv' ]; then \
-            echo 'Création de l'environnement virtuel...' && \
-            python3 -m venv venv; \
-          fi"
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/ec2_private_key.pem ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
+          cd ~/immobilier_en_france/
+          if [ ! -d "venv" ]; then
+          echo "Création de l'environnement virtuel..."
+          python3 -m venv venv
+          fi
+          EOF
 
       - name: Arrêt de l'application en cours
         run: |
