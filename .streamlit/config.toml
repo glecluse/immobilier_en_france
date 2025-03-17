@@ -3,3 +3,4 @@ base = "dark"
 
 [client]
 showErrorDetails = false
+
