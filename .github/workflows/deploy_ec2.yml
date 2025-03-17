@@ -41,34 +41,54 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no -i ~/.ssh/ec2_private_key.pem ubuntu@${{ secrets.EC2_HOST }} "mkdir -p ~/immobilier_en_france/"
 
+      - name: Préparation des fichiers pour la copie
+        run: |
+          # Créer un répertoire temporaire
+          mkdir -p deploy_files
+          # Copier les fichiers pertinents
+          cp -r *.py *.txt *.csv *.yaml *.md requirements.txt deploy_files/ 2>/dev/null || true
+          # Créer les autres répertoires nécessaires
+          mkdir -p deploy_files/test_login
+          cp -r test_login/* deploy_files/test_login/ 2>/dev/null || true
+          # Autres dossiers spécifiques à votre projet
+          # mkdir -p deploy_files/data
+          # cp -r data/* deploy_files/data/ 2>/dev/null || true
+
       - name: Copie des fichiers vers EC2
         run: |
-          # Créer un répertoire temporaire pour la copie
-          TEMP_DIR=$(mktemp -d)
-          cp -R . $TEMP_DIR
-          cd $TEMP_DIR
+          scp -r -o StrictHostKeyChecking=no -i ~/.ssh/ec2_private_key.pem deploy_files/* ubuntu@${{ secrets.EC2_HOST }}:~/immobilier_en_france/
 
-          # Supprimer les répertoires non nécessaires
-          rm -rf .git .github
+      - name: Vérification de l'environnement virtuel
+        run: |
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/ec2_private_key.pem ubuntu@${{ secrets.EC2_HOST }} "cd ~/immobilier_en_france/ && \
+          if [ ! -d 'venv' ]; then \
+            echo 'Création de l'environnement virtuel...' && \
+            python3 -m venv venv; \
+          fi"
 
-          # Copier chaque fichier individuellement
-          find . -type f -name "*.py" -o -name "*.txt" -o -name "*.csv" -o -name "*.yaml" -o -name "*.md" | while read file; do
-            scp -o StrictHostKeyChecking=no -i ~/.ssh/ec2_private_key.pem "$file" ubuntu@${{ secrets.EC2_HOST }}:~/immobilier_en_france/"$file"
-          done
-
-      - name: Redémarrage de l'application sur EC2
+      - name: Arrêt de l'application en cours
         run: |
           ssh -o StrictHostKeyChecking=no -i ~/.ssh/ec2_private_key.pem ubuntu@${{ secrets.EC2_HOST }} "cd ~/immobilier_en_france/ && \
           if pgrep -f 'streamlit run main.py'; then \
-            pkill -f 'streamlit run main.py'; \
+            echo 'Arrêt de l'application en cours...' && \
+            pkill -f 'streamlit run main.py' && \
             sleep 3; \
-          fi && \
-          if [ -d 'venv' ]; then \
-            source venv/bin/activate && \
-            pip install --upgrade -r requirements.txt && \
-            nohup streamlit run main.py --server.port 8501 > output.log 2>&1 & \
-            deactivate; \
           else \
-            echo 'Erreur : Le virtualenv venv n existe pas.'; \
-            exit 1; \
+            echo 'Aucune instance Streamlit en cours d'exécution.'; \
           fi"
+
+      - name: Installation des dépendances sur EC2
+        run: |
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/ec2_private_key.pem ubuntu@${{ secrets.EC2_HOST }} "cd ~/immobilier_en_france/ && \
+          source venv/bin/activate && \
+          pip install --upgrade pip && \
+          pip install -r requirements.txt && \
+          deactivate"
+
+      - name: Lancement de l'application
+        run: |
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/ec2_private_key.pem ubuntu@${{ secrets.EC2_HOST }} "cd ~/immobilier_en_france/ && \
+          source venv/bin/activate && \
+          nohup streamlit run main.py --server.port 8501 > output.log 2>&1 & \
+          echo 'Application démarrée en arrière-plan.' && \
+          deactivate"
