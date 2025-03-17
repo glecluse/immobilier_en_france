@@ -1,19 +1,65 @@
-name: Test SSH EC2
+name: Déploiement EC2
 
 on:
-  workflow_dispatch:  # Permet de le déclencher manuellement
+  push:
+    branches:
+      - main
 
 jobs:
-  test-ssh:
+  test:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Vérification des accès SSH
+      - name: Checkout du code
+        uses: actions/checkout@v2
+
+      - name: Configuration de Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+
+      - name: Installation des dépendances
+        run: pip install -r requirements.txt
+
+      - name: Exécution des tests unitaires
+        run: python -m unittest discover -s test_login
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v2
+
+      - name: Configuration des clés SSH
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.EC2_PRIVATE_KEY }}" > ~/.ssh/ec2_private_key.pem
           chmod 600 ~/.ssh/ec2_private_key.pem
+          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
 
-      - name: Test connexion SSH
+      - name: Création du dossier sur EC2
         run: |
-          ssh -v -o StrictHostKeyChecking=no -i ~/.ssh/ec2_private_key.pem ubuntu@${{ secrets.EC2_HOST }} "echo 'Connexion SSH réussie !'"
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/ec2_private_key.pem ubuntu@${{ secrets.EC2_HOST }} "mkdir -p ~/immobilier_en_france/"
+
+      - name: Copie des fichiers vers EC2
+        run: |
+          tar -czf deploy.tar.gz --exclude=".git" --exclude=".github" .
+          scp -o StrictHostKeyChecking=no -i ~/.ssh/ec2_private_key.pem deploy.tar.gz ubuntu@${{ secrets.EC2_HOST }}:~/
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/ec2_private_key.pem ubuntu@${{ secrets.EC2_HOST }} "tar -xzf ~/deploy.tar.gz -C ~/immobilier_en_france/ && rm ~/deploy.tar.gz"
+
+      - name: Redémarrage de l'application sur EC2
+        run: |
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/ec2_private_key.pem ubuntu@${{ secrets.EC2_HOST }} "cd ~/immobilier_en_france/ && \
+          if pgrep -f 'streamlit run main.py'; then \
+            pkill -f 'streamlit run main.py'; \
+            sleep 3; \
+          fi && \
+          if [ -d 'venv' ]; then \
+            source venv/bin/activate && \
+            pip install --upgrade -r requirements.txt && \
+            nohup streamlit run main.py --server.port 8501 > output.log 2>&1 & \
+            deactivate; \
+          else \
+            echo 'Erreur : Le virtualenv venv n existe pas.'; \
+            exit 1; \
+          fi"
