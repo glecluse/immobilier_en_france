@@ -1,0 +1,24 @@
+name: Deploiement
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v2
+
+      - name: Configuration de Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+
+      - name: Installation des dépendances
+        run: pip install -r requirements.txt
+
+      - name: Exécution des tests unitaires
+        run: python -m unittest discover -s test_login
