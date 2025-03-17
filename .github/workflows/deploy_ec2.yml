@@ -41,7 +41,7 @@ jobs:
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_PRIVATE_KEY }}
+          key: ~/.ssh/ec2_private_key.pem # Utilisation du fichier de clé SSH
           script: |
             mkdir -p ~/immobilier_en_france/
 
@@ -50,7 +50,7 @@ jobs:
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_PRIVATE_KEY }}
+          key: ~/.ssh/ec2_private_key.pem # Utilisation du fichier de clé SSH
           source: ./*
           target: ~/immobilier_en_france/
 
@@ -59,7 +59,7 @@ jobs:
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_PRIVATE_KEY }}
+          key: ~/.ssh/ec2_private_key.pem # Utilisation du fichier de clé SSH
           script: |
             cd ~/immobilier_en_france/
             if pgrep -f "streamlit run main.py"; then
