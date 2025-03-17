@@ -90,7 +90,5 @@ jobs:
       - name: Lancement de l'application
         run: |
           ssh -o StrictHostKeyChecking=no -i ~/.ssh/ec2_private_key.pem ubuntu@${{ secrets.EC2_HOST }} "cd ~/immobilier_en_france/ && \
-          source venv/bin/activate && \
-          nohup streamlit run main.py --server.port 8501 > output.log 2>&1 & \
-          echo 'Application démarrée en arrière-plan.' && \
-          deactivate"
+          nohup venv/bin/python -m streamlit run main.py --server.port 8501 > output.log 2>&1 & \
+          echo 'Application démarrée en arrière-plan.'"
