@@ -43,16 +43,8 @@ jobs:
 
       - name: Préparation des fichiers pour la copie
         run: |
-          # Créer un répertoire temporaire
           mkdir -p deploy_files
-          # Copier les fichiers pertinents
-          cp -r *.py *.txt *.csv *.yaml *.md requirements.txt deploy_files/ 2>/dev/null || true
-          # Créer les autres répertoires nécessaires
-          mkdir -p deploy_files/test_login
-          cp -r test_login/* deploy_files/test_login/ 2>/dev/null || true
-          # Autres dossiers spécifiques à votre projet
-          # mkdir -p deploy_files/data
-          # cp -r data/* deploy_files/data/ 2>/dev/null || true
+            cp -r * deploy_files/ 2>/dev/null || true
 
       - name: Copie des fichiers vers EC2
         run: |
