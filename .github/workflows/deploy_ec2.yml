@@ -32,12 +32,10 @@ jobs:
 
       - name: Configuration des clés SSH
         run: |
-          mkdir -p ~/.ssh/
+          run: |
+          mkdir -p ~/.ssh
           echo "${{ secrets.EC2_PRIVATE_KEY }}" > ~/.ssh/ec2_private_key.pem
-          chmod 400 ~/.ssh/ec2_private_key.pem
-          eval "$(ssh-agent -s)"
-          ssh-add ~/.ssh/ec2_private_key.pem
-          echo -e "Host ec2\n\tStrictHostKeyChecking no\n\tUser ${{ secrets.EC2_USER }}\n\tIdentityFile ~/.ssh/ec2_private_key.pem\n" > ~/.ssh/config
+          chmod 600 ~/.ssh/ec2_private_key.pem
 
       - name: Copie des fichiers vers EC2
         uses: appleboy/scp-action@v0.1.4
