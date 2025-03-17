@@ -43,9 +43,18 @@ jobs:
 
       - name: Copie des fichiers vers EC2
         run: |
-          tar -czf deploy.tar.gz --exclude=".git" --exclude=".github" .
-          scp -o StrictHostKeyChecking=no -i ~/.ssh/ec2_private_key.pem deploy.tar.gz ubuntu@${{ secrets.EC2_HOST }}:~/
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/ec2_private_key.pem ubuntu@${{ secrets.EC2_HOST }} "tar -xzf ~/deploy.tar.gz -C ~/immobilier_en_france/ && rm ~/deploy.tar.gz"
+          # Créer un répertoire temporaire pour la copie
+          TEMP_DIR=$(mktemp -d)
+          cp -R . $TEMP_DIR
+          cd $TEMP_DIR
+
+          # Supprimer les répertoires non nécessaires
+          rm -rf .git .github
+
+          # Copier chaque fichier individuellement
+          find . -type f -name "*.py" -o -name "*.txt" -o -name "*.csv" -o -name "*.yaml" -o -name "*.md" | while read file; do
+            scp -o StrictHostKeyChecking=no -i ~/.ssh/ec2_private_key.pem "$file" ubuntu@${{ secrets.EC2_HOST }}:~/immobilier_en_france/"$file"
+          done
 
       - name: Redémarrage de l'application sur EC2
         run: |
