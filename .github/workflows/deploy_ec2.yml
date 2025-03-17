@@ -1,0 +1,61 @@
+name: Déploiement EC2
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v2
+
+      - name: Configuration de Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+
+      - name: Installation des dépendances
+        run: pip install -r requirements.txt
+
+      - name: Exécution des tests unitaires
+        run: python -m unittest discover -s test_login
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v2
+
+      - name: Configuration des clés SSH
+        run: |
+          mkdir -p ~/.ssh/
+          echo "${{ secrets.EC2_PRIVATE_KEY }}" > ~/.ssh/ec2_private_key.pem
+          chmod 400 ~/.ssh/ec2_private_key.pem
+          eval "$(ssh-agent -s)"
+          ssh-add ~/.ssh/ec2_private_key.pem
+          echo -e "Host ec2\n\tStrictHostKeyChecking no\n\tUser ${{ secrets.EC2_USER }}\n\tIdentityFile ~/.ssh/ec2_private_key.pem\n" > ~/.ssh/config
+
+      - name: Copie des fichiers vers EC2
+        uses: appleboy/scp-action@v0.1.4
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_PRIVATE_KEY }}
+          source: ./*
+          target: ~/immobilier_en_france/
+
+      - name: Redémarrage de l'application sur EC2
+        uses: appleboy/ssh-action@v0.1.2
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_PRIVATE_KEY }}
+          script: |
+            cd ~/immobilier_en_france/
+            source venv/bin/activate
+            nohup streamlit run main.py --server.port 8501 > output.log 2>&1 &
+            deactivate

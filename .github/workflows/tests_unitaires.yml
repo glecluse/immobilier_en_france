@@ -1,4 +1,4 @@
-name: Deploiement
+name: Tests_unitaires
 
 on:
   push:
