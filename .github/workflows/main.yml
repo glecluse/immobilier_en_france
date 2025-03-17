@@ -1,18 +1,19 @@
-name: Test SSH Connection
+name: Test SSH EC2
 
 on:
-  workflow_dispatch: # Permet de déclencher manuellement le workflow
+  workflow_dispatch:  # Permet de le déclencher manuellement
 
 jobs:
-  test_ssh:
+  test-ssh:
     runs-on: ubuntu-latest
-    steps:
-      - name: Configuration des clés SSH
-        run: |
-          mkdir -p ~/.ssh/
-          echo "${{ secrets.EC2_PRIVATE_KEY }}" > ~/.ssh/ec2_private_key.pem
-          chmod 400 ~/.ssh/ec2_private_key.pem
-          echo -e "Host ${{ secrets.EC2_HOST }}\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
 
-      - name: Test de la connexion SSH
-        run: ssh -T ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} -o ConnectTimeout=10
+    steps:
+      - name: Vérification des accès SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_PRIVATE_KEY }}" > ~/.ssh/ec2_private_key.pem
+          chmod 600 ~/.ssh/ec2_private_key.pem
+
+      - name: Test connexion SSH
+        run: |
+          ssh -v -o StrictHostKeyChecking=no -i ~/.ssh/ec2_private_key.pem ubuntu@${{ secrets.EC2_HOST }} "echo 'Connexion SSH réussie !'"
