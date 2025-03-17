@@ -35,14 +35,13 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.EC2_PRIVATE_KEY }}" > ~/.ssh/ec2_private_key.pem
           chmod 400 ~/.ssh/ec2_private_key.pem
-          cat ~/.ssh/ec2_private_key.pem  # Ajoutez cette ligne pour vérifier si la clé est correctement écrite
 
       - name: Vérification et création du dossier sur EC2
         uses: appleboy/ssh-action@v0.1.2
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
-          key: ~/.ssh/ec2_private_key.pem # Utilisation du fichier de clé SSH
+          key: ${{ secrets.EC2_PRIVATE_KEY }}
           script: |
             mkdir -p ~/immobilier_en_france/
 
@@ -51,7 +50,7 @@ jobs:
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
-          key: ~/.ssh/ec2_private_key.pem # Utilisation du fichier de clé SSH
+          key: ${{ secrets.EC2_PRIVATE_KEY }}
           source: ./*
           target: ~/immobilier_en_france/
 
@@ -60,7 +59,7 @@ jobs:
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
-          key: ~/.ssh/ec2_private_key.pem # Utilisation du fichier de clé SSH
+          key: ${{ secrets.EC2_PRIVATE_KEY }}
           script: |
             cd ~/immobilier_en_france/
             if pgrep -f "streamlit run main.py"; then
