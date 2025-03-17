@@ -30,36 +30,34 @@ jobs:
       - name: Checkout du code
         uses: actions/checkout@v2
 
-      - name: Configuration des clés SSH
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.EC2_PRIVATE_KEY }}" > ~/.ssh/ec2_private_key.pem
-          chmod 400 ~/.ssh/ec2_private_key.pem
-
       - name: Vérification et création du dossier sur EC2
-        uses: appleboy/ssh-action@v0.1.2
+        uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_PRIVATE_KEY }}
+          port: 22
           script: |
             mkdir -p ~/immobilier_en_france/
 
       - name: Copie des fichiers vers EC2
-        uses: appleboy/scp-action@v0.1.4
+        uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_PRIVATE_KEY }}
-          source: ./*
-          target: ~/immobilier_en_france/
+          port: 22
+          source: "./*"
+          target: "~/immobilier_en_france/"
+          strip_components: 0
 
       - name: Redémarrage de l'application sur EC2
-        uses: appleboy/ssh-action@v0.1.2
+        uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_PRIVATE_KEY }}
+          port: 22
           script: |
             cd ~/immobilier_en_france/
             if pgrep -f "streamlit run main.py"; then
