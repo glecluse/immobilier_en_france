@@ -36,7 +36,7 @@ def is_password_secure(password):
 
 def load_view():
     col3, empty_col, col4 = st.columns([2, 0.5, 2])
-
+    st.write("le déploiement a réussi !!!")
     with col3:
         st.markdown("<h1 style='text-align: center;'>Connexion</h1>", unsafe_allow_html=True)
 
