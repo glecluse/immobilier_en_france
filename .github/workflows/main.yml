@@ -1,0 +1,19 @@
+name: Test SSH EC2
+
+on:
+  workflow_dispatch: # Permet de le déclencher manuellement
+
+jobs:
+  test-ssh:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Vérification des accès SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_PRIVATE_KEY }}" > ~/.ssh/ec2_private_key.pem
+          chmod 600 ~/.ssh/ec2_private_key.pem
+
+      - name: Test connexion SSH
+        run: |
+          ssh -v -o StrictHostKeyChecking=no -i ~/.ssh/ec2_private_key.pem ubuntu@${{ secrets.EC2_HOST }} "echo 'Connexion SSH réussie !'"

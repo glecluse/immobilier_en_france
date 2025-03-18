@@ -39,7 +39,7 @@ def load_view():
     st.write("le déploiement a réussi !!!")
     with col3:
         st.markdown("<h1 style='text-align: center;'>Connexion</h1>", unsafe_allow_html=True)
-
+        
         email = st.text_input('E-mail', '')
 
         # Ajout d'une case à cocher pour différencier connexion et inscription
