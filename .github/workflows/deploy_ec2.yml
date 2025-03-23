@@ -1,4 +1,4 @@
-name: Déploiement EC2
+name: Déploiement Streamlit sur EC2
 
 on:
   push:
@@ -6,81 +6,48 @@ on:
       - main
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout du code
-        uses: actions/checkout@v2
-
-      - name: Configuration de Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.8
-
-      - name: Installation des dépendances
-        run: pip install -r requirements.txt
-
-      - name: Exécution des tests unitaires
-        run: python -m unittest discover -s test_login
-
   deploy:
     runs-on: ubuntu-latest
-    needs: test
+
     steps:
-      - name: Checkout du code
-        uses: actions/checkout@v2
+    - name: Checkout du code
+      uses: actions/checkout@v3
 
-      - name: Configuration des clés SSH
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.EC2_PRIVATE_KEY }}" > ~/.ssh/ec2_private_key.pem
-          chmod 600 ~/.ssh/ec2_private_key.pem
-          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+    - name: Configuration de Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.12'
 
-      - name: Création du dossier sur EC2
-        run: |
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/ec2_private_key.pem ubuntu@${{ secrets.EC2_HOST }} "mkdir -p ~/immobilier_en_france/"
+    - name: Installation des dépendances
+      run: |
+        python -m venv venv
+        source venv/bin/activate
+        pip install -r requirements.txt
 
-      - name: Préparation des fichiers pour la copie
-        run: |
-          mkdir -p deploy_files
-            cp -r * deploy_files/ 2>/dev/null || true
+    - name: Lancement des tests
+      run: |
+        source venv/bin/activate
+        python -m unittest discover -s test_login
 
-      - name: Copie des fichiers vers EC2
-        run: |
-          scp -r -o StrictHostKeyChecking=no -i ~/.ssh/ec2_private_key.pem deploy_files/* ubuntu@${{ secrets.EC2_HOST }}:~/immobilier_en_france/
+    - name: Copie des fichiers sur le serveur EC2
+      run: |
+        scp -r -o StrictHostKeyChecking=no -i ~/.ssh/ec2_private_key.pem deploy_files/* ubuntu@${{ secrets.EC2_HOST }}:~/immobilier_en_france/
 
-      - name: Vérification de l'environnement virtuel
-        run: |
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/ec2_private_key.pem ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
-          cd ~/immobilier_en_france/
-          if [ ! -d "venv" ]; then
-          echo "Création de l'environnement virtuel..."
-          python3 -m venv venv
-          fi
-          EOF
+    - name: Arrêt de l'ancienne instance Streamlit
+      run: |
+        ssh -o StrictHostKeyChecking=no -i ~/.ssh/ec2_private_key.pem ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
+        pkill -f streamlit || echo "Pas d'instance en cours"
+        sleep 3
+        EOF
 
-      - name: Arrêt de l'application en cours
-        run: |
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/ec2_private_key.pem ubuntu@${{ secrets.EC2_HOST }} "cd ~/immobilier_en_france/ && \
-          if pgrep -f 'streamlit run main.py'; then \
-            echo 'Arrêt de l'application en cours...' && \
-            pkill -f 'streamlit run main.py' && \
-            sleep 3; \
-          else \
-            echo 'Aucune instance Streamlit en cours d'exécution.'; \
-          fi"
+    - name: Lancement de l'application
+      run: |
+        ssh -o StrictHostKeyChecking=no -i ~/.ssh/ec2_private_key.pem ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
+        cd ~/immobilier_en_france/
+        echo "Vérification de la présence du fichier main.py"
+        ls -l main.py
 
-      - name: Installation des dépendances sur EC2
-        run: |
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/ec2_private_key.pem ubuntu@${{ secrets.EC2_HOST }} "cd ~/immobilier_en_france/ && \
-          source venv/bin/activate && \
-          pip install --upgrade pip && \
-          pip install -r requirements.txt && \
-          deactivate"
-
-      - name: Lancement de l'application
-        run: |
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/ec2_private_key.pem ubuntu@${{ secrets.EC2_HOST }} "cd ~/immobilier_en_france/ && \
-          nohup venv/bin/python -m streamlit run main.py --server.port 8501 > output.log 2>&1 & \
-          echo 'Application démarrée en arrière-plan.'"
+        echo "Démarrage de Streamlit en arrière-plan..."
+        nohup venv/bin/python -m streamlit run main.py --server.port 8501 --server.enableCORS false > output.log 2>&1 &
+        echo "Application Streamlit relancée."
+        EOF

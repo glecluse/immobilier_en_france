@@ -29,6 +29,8 @@ def load_view():
         confirm_password = st.text_input('Confirmer le mot de passe', '', type='password') if sign_up_mode else None
 
         col1, col2 = st.columns([1, 1])
+
+        st.write("Test de déploiement réussi !!!")
         with col1:
             log_in_button = st.button('Se connecter')
         with col2:
