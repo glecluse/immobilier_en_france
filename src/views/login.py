@@ -14,7 +14,7 @@ def is_password_secure(password):
     if not re.search(r"\d", password):
         return "Le mot de passe doit contenir au moins un chiffre."
     if not re.search(r"[!@#$%^&*(),.?\":{}|<>]", password):
-        return "Le mot de passe doit contenir au moins un caractère spécial."
+        return "Le mot de passe doit contenir au moins un caractère spécial (?@#$%^&*...)."
     return "Mot de passe sécurisé."
 
 def load_view():
