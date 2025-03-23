@@ -3,6 +3,7 @@ import re
 from src.controllers.auth import auth
 from src.controllers.signup import signup
 from src.router import redirect
+import time
 
 def is_password_secure(password):
     if len(password) < 12:
@@ -51,7 +52,8 @@ def load_view():
                     st.error(password_error)
                 else:
                     if signup(email, password):
-                        st.success("Inscription réussie.")
+                        st.success("Inscription réussie, vous allez être redirigé vers la page d'accueil de l'application.")
+                        time.sleep(3)
                         redirect("home", reload=True)
                     else:
                         st.error("E-mail déjà utilisé ou erreur technique.")
