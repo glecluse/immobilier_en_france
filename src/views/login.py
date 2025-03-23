@@ -15,7 +15,7 @@ def is_password_secure(password):
         return "Le mot de passe doit contenir au moins un chiffre."
     if not re.search(r"[!@#$%^&*(),.?\":{}|<>]", password):
         return "Le mot de passe doit contenir au moins un caractère spécial (?@#$%^&*...)."
-    return "Mot de passe sécurisé."
+    return None 
 
 def load_view():
     col3, _, col4 = st.columns([2, 0.5, 2])
@@ -30,7 +30,6 @@ def load_view():
 
         col1, col2 = st.columns([1, 1])
 
-        st.write("Test de déploiement réussi !!!")
         with col1:
             log_in_button = st.button('Se connecter')
         with col2:
