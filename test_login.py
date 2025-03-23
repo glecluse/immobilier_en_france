@@ -17,7 +17,7 @@ class TestPasswordSecurity(unittest.TestCase):
         self.assertEqual(is_password_secure("Long_sans_chiffre!"), "Le mot de passe doit contenir au moins un chiffre.")
 
     def test_missing_special_character(self):
-        self.assertEqual(is_password_secure("Long_sans_caractere_special1"), "Le mot de passe doit contenir au moins un caractère spécial (!@#$%^&*...).")
+        self.assertEqual(is_password_secure("Long_sans_caractere_special1"), "Le mot de passe doit contenir au moins un caractère spécial (?@#$%^&*...).")
 
     def test_valid_password(self):
         self.assertEqual(is_password_secure("Mot_de_pass_long_securise1!"), "Mot de passe sécurisé.")
