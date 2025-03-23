@@ -1,18 +1,14 @@
 from src.models.session import Session
-import json 
+import json
 
 def auth(login, mdp):
-    s = Session(login,mdp)
+    s = Session(login, mdp)
     s.login()
     if s.logged:
         s.persist()
         return True
-    else:
-        return False
+    return False
 
 def logout():
-    data = {      
-    "email" : ""
-    }
-    with open("session.json", 'w') as outfile:
-        json.dump(data, outfile)
+    with open("session.json", "w") as f:
+        json.dump({"email": ""}, f)
