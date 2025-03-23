@@ -46,9 +46,13 @@ jobs:
           mkdir -p deploy_files
             cp -r * deploy_files/ 2>/dev/null || true
 
+      - name: Supprimer project.db pour éviter l'écrasement
+        run: rm -f deploy_files/project.db
+
       - name: Copie des fichiers vers EC2
         run: |
           scp -r -o StrictHostKeyChecking=no -i ~/.ssh/ec2_private_key.pem deploy_files/* ubuntu@${{ secrets.EC2_HOST }}:~/immobilier_en_france/
+          
 
       - name: Vérification de l'environnement virtuel
         run: |
