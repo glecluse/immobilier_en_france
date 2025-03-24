@@ -22,8 +22,9 @@ def is_password_secure(password):
 
 def load_view():
     col3, _, col4 = st.columns([2, 0.5, 2])
-    st.title("le déploiement s'est correctement déroulé !")
+    
     with col3:
+        st.title("le déploiement s'est correctement déroulé !")
         st.markdown("<h1 style='text-align: center;'>Connexion</h1>", unsafe_allow_html=True)
         email = st.text_input('E-mail', '')
         sign_up_mode = st.checkbox("Créer un compte")
