@@ -5,7 +5,7 @@ from src.controllers.signup import signup
 from src.router import redirect
 import time
 
-st.title("Le déploiement s'est correctement déroulé !")
+
 
 def is_password_secure(password):
     if len(password) < 12:
@@ -22,7 +22,7 @@ def is_password_secure(password):
 
 def load_view():
     col3, _, col4 = st.columns([2, 0.5, 2])
-
+    st.title("le déploiement s'est correctement déroulé !")
     with col3:
         st.markdown("<h1 style='text-align: center;'>Connexion</h1>", unsafe_allow_html=True)
         email = st.text_input('E-mail', '')
