@@ -100,5 +100,5 @@ jobs:
         run: |
           echo "Démarrage de Streamlit en arrière-plan..."
           nohup venv/bin/python -m streamlit run main.py --server.port 8501 --server.enableCORS false > output.log 2>&1 &
-          echo "✅ Application Streamlit relancée."
+          echo "Application Streamlit relancée."
         
