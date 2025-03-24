@@ -39,13 +39,16 @@ jobs:
 
       - name: Création du dossier sur EC2 + suppression conditionnelle de project.db
         run: |
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/ec2_private_key.pem ubuntu@${{ secrets.EC2_HOST }} '
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/ec2_private_key.pem ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
             if [ -d ~/immobilier_en_france ]; then
               echo "Le dossier existe déjà. Suppression de project.db..."
               rm -f ~/immobilier_en_france/project.db
             else
               echo "Le dossier n'existe pas. Création du dossier..."
               mkdir ~/immobilier_en_france
+            fi
+          EOF
+        
         
       - name: Préparation des fichiers pour la copie
         run: |
