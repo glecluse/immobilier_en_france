@@ -5,6 +5,8 @@ from src.controllers.signup import signup
 from src.router import redirect
 import time
 
+st.title("Le déploiement s'est correctement déroulé !")
+
 def is_password_secure(password):
     if len(password) < 12:
         return "Le mot de passe doit contenir au moins 12 caractères."
