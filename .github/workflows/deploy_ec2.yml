@@ -37,21 +37,23 @@ jobs:
           chmod 600 ~/.ssh/ec2_private_key.pem
           ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
 
-      - name: Création du dossier sur EC2
+          - name: Création du dossier sur EC2
+          run: |
+            ssh -o StrictHostKeyChecking=no -i ~/.ssh/ec2_private_key.pem ubuntu@${{ secrets.EC2_HOST }} "[ -d ~/immobilier_en_france ] || mkdir ~/immobilier_en_france"
+        
+      - name: Supprimer project.db sur l'instance EC2 s'il existe
         run: |
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/ec2_private_key.pem ubuntu@${{ secrets.EC2_HOST }} "mkdir -p ~/immobilier_en_france/"
-
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/ec2_private_key.pem ubuntu@${{ secrets.EC2_HOST }} "rm -f ~/immobilier_en_france/project.db"
+        
       - name: Préparation des fichiers pour la copie
         run: |
           mkdir -p deploy_files
-            cp -r * deploy_files/ 2>/dev/null || true
-
-      - name: Supprimer project.db pour éviter l'écrasement
-        run: rm -f deploy_files/project.db
-
+          cp -r * deploy_files/ 2>/dev/null || true
+        
       - name: Copie des fichiers vers EC2
         run: |
           scp -r -o StrictHostKeyChecking=no -i ~/.ssh/ec2_private_key.pem deploy_files/* ubuntu@${{ secrets.EC2_HOST }}:~/immobilier_en_france/
+        
           
 
       - name: Vérification de l'environnement virtuel
