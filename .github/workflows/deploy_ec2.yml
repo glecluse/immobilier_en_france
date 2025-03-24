@@ -37,9 +37,9 @@ jobs:
           chmod 600 ~/.ssh/ec2_private_key.pem
           ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
 
-          - name: Création du dossier sur EC2
-          run: |
-            ssh -o StrictHostKeyChecking=no -i ~/.ssh/ec2_private_key.pem ubuntu@${{ secrets.EC2_HOST }} "[ -d ~/immobilier_en_france ] || mkdir ~/immobilier_en_france"
+      - name: Création du dossier sur EC2
+        run: |
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/ec2_private_key.pem ubuntu@${{ secrets.EC2_HOST }} "[ -d ~/immobilier_en_france ] || mkdir ~/immobilier_en_france"
         
       - name: Supprimer project.db sur l'instance EC2 s'il existe
         run: |
