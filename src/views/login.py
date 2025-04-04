@@ -22,6 +22,8 @@ def is_password_secure(password):
 
 def load_view():
     col3, _, col4 = st.columns([2, 0.5, 2])
+
+    st.write("test")
     
     with col3:
         st.title("le déploiement s'est correctement déroulé 2 !")
